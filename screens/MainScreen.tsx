@@ -1,7 +1,6 @@
 import React from 'react';
 import MapView from 'react-native-maps';
 import { View } from 'react-native';
-import { SafeAreaProvider, SafeAreaView }  from 'react-native-safe-area-context';
 import markers from '../context/markers';
 import mainscreen from '../styles/MainScreenStyles';
 import MapOverlay from '../components/MapOverlay';
@@ -13,7 +12,6 @@ export default function MainScreen() {
             style={mainscreen.map}
             initialRegion={markers[0].coordinates}
         />
-
         <MapOverlay/>
     </View>
   );
