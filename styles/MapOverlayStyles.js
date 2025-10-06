@@ -22,16 +22,17 @@ export default StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 1)',
     padding: 20, 
     borderRadius: 20,
-    height: 280,
+    height: 300,
   },
   header: {
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 10,
   },
   subheader: {
     fontSize: 16,
     marginHorizontal: 5,
+    fontWeight: 'bold',
   },
   input: {
     backgroundColor: '#f0f0f0',
@@ -63,6 +64,16 @@ export default StyleSheet.create({
   originAndDestination: {
     flexDirection: 'row',
     alignItems: 'center',
-
+  },
+  originAndDestinationContainer: {
+    marginVertical: 5,
+    padding: 10,
+    backgroundColor: '#f0f0f0',
+    borderRadius: 8,
+  },
+  originAndDestinationText: {
+    fontSize: 14,
+    marginTop: 4,
+    marginLeft: 30,
   },
 });

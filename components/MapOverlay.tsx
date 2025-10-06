@@ -1,65 +1,58 @@
 import { TouchableOpacity, View, Text, TextInput } from 'react-native';
-import componentStyles from '../styles/componentStyles';
+import mapOverlayStyles from '../styles/MapOverlayStyles';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { RootStackParamList } from '../context/navigationTypes';
 
-type RootStackParamList = {
-  RouteList: { mode: string };
-  RouteMap: { routeId: string };
-  // add other routes here as needed
+type Location = {
+    id: string;
+    name: string;
 };
 
-export default function MapOverlay() {
-    const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+type Props = {
+    origin?: Location;
+    destination?: Location;
+};
+
+export default function MapOverlay({ origin, destination }: Props) {
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   return (
-    <View pointerEvents='box-none' style={componentStyles.container}>   
-
-        {/* <View pointerEvents='auto' style={componentStyles.upperviewstyle}>
-            <View>
-                <Text>Welcome to Sakay App!</Text>
-            </View>
+    <View pointerEvents='box-none' style={mapOverlayStyles.container}>
+        {/* <View pointerEvents='auto' style={mapOverlayStyles.upperviewstyle}>
+            <Text>CDO Sakay App</Text>
         </View> */}
 
-        <View pointerEvents='auto' style={componentStyles.lowerviewstyle}>  
-            <View>
-                <Text style={componentStyles.header}>Where to?</Text>
-                <View style={componentStyles.originAndDestination}>
-                    <Ionicons name="map-outline" size={24} color="black"/>
-                    <Text style={componentStyles.subheader}>Origin</Text>
+        <View pointerEvents='auto' style={mapOverlayStyles.lowerviewstyle}>
+            <Text style={mapOverlayStyles.header}>Where to?</Text>
+
+            <TouchableOpacity style={mapOverlayStyles.originAndDestinationContainer} onPress={() => navigation.navigate('LocationSearch', { type: 'origin' })}>
+                <View style={mapOverlayStyles.originAndDestination}>
+                    <Ionicons name="map-outline" size={24} color="blue" />
+                    <Text style={mapOverlayStyles.subheader}>Origin</Text>
                 </View>
-            <TextInput
-                // value={origin}
-                // onChangeText={setOrigin}
-                placeholder="Enter origin"
-                style={componentStyles.input}
-            />
+                <Text style={mapOverlayStyles.originAndDestinationText}>{origin ? origin.name : 'Tap to select origin'}</Text>
+            </TouchableOpacity>
 
-            <View style={componentStyles.originAndDestination}>
-                    <Ionicons name="navigate-outline" size={24} color="black"/>
-                    <Text style={componentStyles.subheader}>Destination</Text>
-            </View>
-            <TextInput
-                // value={destination}
-                // onChangeText={setDestination}
-                placeholder="Enter destination"
-                style={componentStyles.input}
-            />
-            <View style={componentStyles.buttonRow}>
-                <TouchableOpacity style={componentStyles.button} onPress={() => {navigation.navigate('RouteList', { mode: 'jeepney' })}}>
+            <TouchableOpacity style={mapOverlayStyles.originAndDestinationContainer} onPress={() => navigation.navigate('LocationSearch', { type: 'destination' })}>
+                <View style={mapOverlayStyles.originAndDestination}>
+                    <Ionicons name="navigate-outline" size={24} color="orange" />
+                    <Text style={mapOverlayStyles.subheader}>Destination</Text>
+                </View>
+                <Text style={mapOverlayStyles.originAndDestinationText}>{destination ? destination.name : 'Tap to select destination'}</Text>
+            </TouchableOpacity>
 
-                    <Text style={componentStyles.buttonText}>See Jeepney Routes</Text>
+            <View style={mapOverlayStyles.buttonRow}>
+                <TouchableOpacity style={mapOverlayStyles.button} onPress={() => navigation.navigate('RouteList', { mode: 'jeepney' })}>
+                    <Text style={mapOverlayStyles.buttonText}>See Jeepney Routes</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={componentStyles.button} onPress={() => {navigation.navigate('RouteList', { mode: 'tricycle' })}}>
-                    <Text style={componentStyles.buttonText}>See Tricycle Routes</Text>
+                <TouchableOpacity style={mapOverlayStyles.button} onPress={() => navigation.navigate('RouteList', { mode: 'tricycle' })}>
+                    <Text style={mapOverlayStyles.buttonText}>See Tricycle Routes</Text>
                 </TouchableOpacity>
             </View>
-
-            </View>
-        </View>
-
+      </View>
     </View>
   );
-};
+}
