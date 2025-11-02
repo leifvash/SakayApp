@@ -31,7 +31,7 @@ export default function MainScreen() {
             style={mainscreen.map}
             initialRegion={markers[0].coordinates}
         />
-        <MapOverlay origin={origin} destination={destination}/>
+        <MapOverlay/>
     </View>
   );
 }

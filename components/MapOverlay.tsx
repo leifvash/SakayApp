@@ -4,19 +4,15 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../context/navigationTypes';
+import { useLocation } from '../context/LocationContext';
 
-type Location = {
-    id: string;
-    name: string;
-};
-
-type Props = {
-    origin?: Location;
-    destination?: Location;
-};
-
-export default function MapOverlay({ origin, destination }: Props) {
+export default function MapOverlay() {
+    
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const { origin, destination } = useLocation();
+
+    const originLabel = origin ? origin : 'Tap to select origin';
+    const destinationLabel = destination ? `${destination}` : destination ? destination : 'Tap to select destination';
 
   return (
     <View pointerEvents='box-none' style={mapOverlayStyles.container}>
@@ -32,7 +28,7 @@ export default function MapOverlay({ origin, destination }: Props) {
                     <Ionicons name="map-outline" size={24} color="blue" />
                     <Text style={mapOverlayStyles.subheader}>Origin</Text>
                 </View>
-                <Text style={mapOverlayStyles.originAndDestinationText}>{origin ? origin.name : 'Tap to select origin'}</Text>
+                <Text style={mapOverlayStyles.originAndDestinationText}>{originLabel}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={mapOverlayStyles.originAndDestinationContainer} onPress={() => navigation.navigate('LocationSearch', { type: 'destination' })}>
@@ -40,7 +36,7 @@ export default function MapOverlay({ origin, destination }: Props) {
                     <Ionicons name="navigate-outline" size={24} color="orange" />
                     <Text style={mapOverlayStyles.subheader}>Destination</Text>
                 </View>
-                <Text style={mapOverlayStyles.originAndDestinationText}>{destination ? destination.name : 'Tap to select destination'}</Text>
+                <Text style={mapOverlayStyles.originAndDestinationText}>{destinationLabel}</Text>
             </TouchableOpacity>
 
             <View style={mapOverlayStyles.buttonRow}>
@@ -54,5 +50,7 @@ export default function MapOverlay({ origin, destination }: Props) {
             </View>
       </View>
     </View>
+    
   );
+  
 }

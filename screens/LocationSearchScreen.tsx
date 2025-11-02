@@ -1,74 +1,55 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import type { RootStackParamList } from '../context/navigationTypes';
+import React from 'react';
+import { View, Text, FlatList, TouchableOpacity, TextInput ,StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import locationSearchStyles from '../styles/LocationSearchStyles';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useLocation } from '../context/LocationContext';
+import LocationSearchStyles from '../styles/LocationSearchStyles';
 
-type Location = {
-  id: string;
-  name: string;
-};
+const MOCK_LOCATIONS = ['Divisoria', 'Cogon', 'Lapasan', 'Bulua', 'Kauswagan'];
 
-type SearchParams = {
-  type: 'origin' | 'destination';
-};
+const LocationSearchScreen = ({ navigation, route }) => {
+  const { setOrigin, setDestination } = useLocation();
+  const { type } = route.params;
 
-const MOCK_LOCATIONS: Location[] = [
-  { id: 'loc-01', name: 'Limketkai Mall' },
-  { id: 'loc-02', name: 'Gaisano City' },
-  { id: 'loc-03', name: 'Carmen Market' },
-  { id: 'loc-04', name: 'Divisoria Terminal' },
-  { id: 'loc-05', name: 'Lapasan Highway' },
-];
+  const [searchQuery, setSearchQuery] = React.useState('');
 
-export default function LocationSearchScreen() {
-    const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-    const route = useRoute<RouteProp<{ params: SearchParams }, 'params'>>();
-    const { type } = route.params;
+  const filteredLocations = MOCK_LOCATIONS.filter((location) =>
+    location.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
-    const [query, setQuery] = useState('');
-    const [filteredLocations, setFilteredLocations] = useState<Location[]>(MOCK_LOCATIONS);
+  const handleLocationSelect = (location: string) => {
+    if (type === 'origin') setOrigin(location);
+    else setDestination(location);
+    navigation.goBack();
+  };
+  
 
-    const handleSearch = (text: string) => {
-      setQuery(text);
-      const filtered = MOCK_LOCATIONS.filter((loc) =>
-        loc.name.toLowerCase().includes(text.toLowerCase())
-      );
-      setFilteredLocations(filtered);
-    };
-
-    const handleSelectLocation = (location: Location) => {
-      navigation.navigate('Main', { [type]: location });
-    };
-
-    return (
-        <SafeAreaView style={locationSearchStyles.container}>
-          <TouchableOpacity onPress={() => navigation.goBack()} style={{ flexDirection: 'row', marginBottom: 20 }}>
-            <Ionicons name="arrow-back" size={30} color="black" />
-            <Text style={locationSearchStyles.header}>Select {type === 'origin' ? 'Origin' : 'Destination'}</Text>
+  return (
+    <SafeAreaView style={LocationSearchStyles.container}>
+      <TouchableOpacity onPress={() => navigation.goBack()} style={{ flexDirection: 'row', marginBottom: 20 }}>
+        <Ionicons name="arrow-back" size={30} color="black" />
+        <Text style={LocationSearchStyles.header}>Select {type === 'origin' ? 'Origin' : 'Destination'}</Text>
+      </TouchableOpacity>
+      <TextInput
+        style={LocationSearchStyles.input}
+        placeholder="Search location..."
+        value={searchQuery}
+        onChangeText={setSearchQuery}
+      />
+      <FlatList
+        data={filteredLocations}
+        keyExtractor={(item) => item}
+        renderItem={({ item }) => (
+          <TouchableOpacity style={LocationSearchStyles.item} onPress={() => handleLocationSelect(item)}>
+            <Text style={LocationSearchStyles.itemText}>{item}</Text>
           </TouchableOpacity>
-            <TextInput
-                value={query}
-                onChangeText={handleSearch}
-                placeholder="Search location..."
-                style={locationSearchStyles.input}
-            />
-            <FlatList
-                data={filteredLocations}
-                keyExtractor={(item) => item.id}
-                renderItem={({ item }) => (
-                  <TouchableOpacity style={locationSearchStyles.item} onPress={() => handleSelectLocation(item)}>
-                    <Text style={locationSearchStyles.itemText}>{item.name}</Text>
-                  </TouchableOpacity>
-              )}
-            />
-          </SafeAreaView>
-    );
-}
+        )}
+        ListEmptyComponent={
+          <Text>No matching locations found.</Text>
+        }
+      />
+    </SafeAreaView>
+  );
+};
+export default LocationSearchScreen;
 
-const styles = StyleSheet.create({
-
-});
