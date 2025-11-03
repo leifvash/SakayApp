@@ -28,6 +28,7 @@ export default function MainScreen() {
   return (
     <View style={mainscreen.container}>
         <MapView 
+            provider="google"
             style={mainscreen.map}
             initialRegion={markers[0].coordinates}
         />

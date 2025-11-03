@@ -16,9 +16,6 @@ export default function MapOverlay() {
 
   return (
     <View pointerEvents='box-none' style={mapOverlayStyles.container}>
-        {/* <View pointerEvents='auto' style={mapOverlayStyles.upperviewstyle}>
-            <Text>CDO Sakay App</Text>
-        </View> */}
 
         <View pointerEvents='auto' style={mapOverlayStyles.lowerviewstyle}>
             <Text style={mapOverlayStyles.header}>Where to?</Text>
