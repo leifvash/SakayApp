@@ -37,17 +37,28 @@ export default function MapOverlay() {
             </TouchableOpacity>
 
             <View style={mapOverlayStyles.buttonRow}>
-                <TouchableOpacity style={mapOverlayStyles.button} onPress={() => navigation.navigate('RouteList', { mode: 'jeepney' })}>
+                <TouchableOpacity style={mapOverlayStyles.button} onPress={async () => {
+                    // try {
+                    // const res = await fetch('http://192.168.1.3:3000/routes');
+                    // const data = await res.json();
+                    // const jeepneyRoutes = data.filter((r: any) => r.mode === 'jeepney');
+                    // console.log('Jeepney routes fetched:', jeepneyRoutes); // ✅ Debug log
+
+                    navigation.navigate('RouteList', { mode: 'jeepney' });
+                    // } catch (err) {
+                    // console.error('Error fetching jeepney routes:', err);
+                    // }
+                }}
+>
                     <Text style={mapOverlayStyles.buttonText}>See Jeepney Routes</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={mapOverlayStyles.button} onPress={() => navigation.navigate('RouteList', { mode: 'tricycle' })}>
+                {/* <TouchableOpacity style={mapOverlayStyles.button} onPress={() => navigation.navigate('RouteList', { mode: 'tricycle' })}>
                     <Text style={mapOverlayStyles.buttonText}>See Tricycle Routes</Text>
-                </TouchableOpacity>
+                </TouchableOpacity> */}
             </View>
       </View>
     </View>
     
   );
-  
 }

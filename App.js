@@ -6,6 +6,7 @@ import { LocationProvider } from './context/LocationContext'
 import MainScreen from './screens/MainScreen';
 import RouteListScreen from './screens/RouteListScreen';
 import LocationSearchScreen from './screens/LocationSearchScreen';
+import RouteMapScreen from './screens/RouteMapScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -17,6 +18,7 @@ export default function App() {
           <Stack.Screen name="MainScreen" component={MainScreen} />
           <Stack.Screen name="RouteList" component={RouteListScreen} />
           <Stack.Screen name="LocationSearch" component={LocationSearchScreen} />
+          <Stack.Screen name="RouteMap" component={RouteMapScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </LocationProvider>

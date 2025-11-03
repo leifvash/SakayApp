@@ -5,7 +5,7 @@ import { useRoute } from '@react-navigation/native';
 import type { RouteProp } from '@react-navigation/native';
 import markers from '../context/markers';
 import mainscreen from '../styles/MainScreenStyles';
-import MapOverlay from '../components/MapOverlay';
+import MapOverlay from '../components/MainScreenMapOverlay';
 
 type Location = {
   id: string;
@@ -28,7 +28,7 @@ export default function MainScreen() {
   return (
     <View style={mainscreen.container}>
         <MapView 
-            provider="google"
+            // provider="google"
             style={mainscreen.map}
             initialRegion={markers[0].coordinates}
         />
