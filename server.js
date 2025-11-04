@@ -12,24 +12,29 @@ app.use(cors());
 app.use(express.json());
 
 // Connect to MongoDB database named 'sakayapp'
-mongoose.connect('mongodb://localhost:27017/sakayapp');
+mongoose.connect('mongodb://192.168.1.11:27017/SakayApp');
 
 // Define the schema for route documents
 const RouteSchema = new mongoose.Schema({
-  name: String,         // Route name (e.g. "Bulua – Agora Market")
-  direction: String,    // Direction (e.g. "Inbound" or "Outbound")
-  coordinates: [        // Array of lat/lng points that form the route
-    {
-      latitude: String,
-      longitude: String,
+  name: String,
+  direction: String,
+  route: {
+    type: {
+      type: String,
+      enum: ['LineString'],
+      required: true
     },
-  ],
+    coordinates: {
+      type: [[Number]],
+      required: true
+    }
+  }
 });
+
 
 // Create a model named 'Route' that maps to the 'District 1 Routes' collection
 // This third argument is required because collection name has spaces and capitalization
-const Route = mongoose.model('Route', RouteSchema, 'District 1 Routes');
-
+const Route = mongoose.model('Route', RouteSchema, 'districtTwo');
 // Define a GET endpoint to return all routes
 app.get('/routes', async (req, res) => {
   const routes = await Route.find();   // Fetch all documents from the collection

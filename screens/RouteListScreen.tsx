@@ -39,7 +39,7 @@ export default function RouteListScreen() {
 
   // Fetch route data from backend when screen loads or mode changes
   useEffect(() => {
-    fetch('http://192.168.1.3:3000/routes') // Replace with your actual IP
+    fetch('http://192.168.1.8:3000/routes') // Replace with your actual IP
       .then((res) => res.json())
       .then((data) => {
         // Filter routes based on mode (e.g. jeepney or tricycle)

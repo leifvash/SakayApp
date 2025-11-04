@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { TouchableOpacity, View, Text, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import MapView, { Marker, Polyline } from 'react-native-maps';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
-import routeListStyles from '../styles/RouteListStyles';
 import RouteMapScreenStyles from '../styles/RouteMapScreenStyles';
 import RouteDetailsOverlay from '../components/RouteDetailsOverlay';
 import { ActivityIndicator } from 'react-native';
@@ -20,9 +18,14 @@ type RouteData = {
   name: string;
   mode: string;
   fare?: number;
-  stops?: string[]; // Optional array of stop names
-  coordinates: Coordinate[]; // Array of lat/lng points
+  stops?: string[];
+  route: {
+    type: 'LineString';
+    coordinates: [number, number][];
+  };
+  coordinates: Coordinate[]; // parsed lat/lng for MapView
 };
+
 
 // Navigation parameter type for RouteMap screen
 type RouteMapParams = { routeId: string };
@@ -44,24 +47,22 @@ export default function RouteMapScreen() {
 
   // Fetch route details from backend when routeId changes
   useEffect(() => {
-    fetch(`http://192.168.1.3:3000/routes/${routeId}`)
+    fetch(`http://192.168.1.8:3000/routes/${routeId}`)
       .then((res) => res.json())
       .then((data) => {
-        // Defensive check: ensure coordinates exist and are valid
-        if (!data.coordinates || !Array.isArray(data.coordinates)) {
+        if (!data.route?.coordinates || !Array.isArray(data.route.coordinates)) {
           console.error('Invalid or missing coordinates:', data);
           return;
         }
 
-        // Parse coordinates into proper lat/lng format
-        const parsedCoords = data.coordinates.map((c: any) => ({
-          latitude: parseFloat(c.latitude),
-          longitude: parseFloat(c.longitude),
+        const parsedCoords = data.route.coordinates.map(([lng, lat]) => ({
+          latitude: lat,
+          longitude: lng,
         }));
 
-        // Store route data in state
         setRouteData({ ...data, coordinates: parsedCoords });
       });
+
   }, [routeId]);
 
   // Show loading spinner while data is being fetched
@@ -82,13 +83,13 @@ export default function RouteMapScreen() {
         }}
       >
         {/* Render markers for each coordinate, using stop names if available */}
-        {coordinates.map((coord, index) => (
+        {/* {coordinates.map((coord, index) => (
           <Marker
             key={index}
             coordinate={coord}
             title={routeData.stops?.[index] ?? `Stop ${index + 1}`}
           />
-        ))}
+        ))} */}
 
         {/* Draw polyline connecting all coordinates */}
         <Polyline coordinates={coordinates} strokeColor="#FF5733" strokeWidth={4} />
