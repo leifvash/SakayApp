@@ -6,6 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import RouteMapScreenStyles from '../styles/RouteMapScreenStyles';
 import RouteDetailsOverlay from '../components/RouteDetailsOverlay';
 import { ActivityIndicator } from 'react-native';
+import { API_URL } from '@env';
 
 // Type for individual coordinates
 type Coordinate = {
@@ -47,23 +48,26 @@ export default function RouteMapScreen() {
 
   // Fetch route details from backend when routeId changes
   useEffect(() => {
-    fetch(`http://192.168.1.8:3000/routes/${routeId}`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (!data.route?.coordinates || !Array.isArray(data.route.coordinates)) {
-          console.error('Invalid or missing coordinates:', data);
-          return;
-        }
+  fetch(`${API_URL}/routes/${routeId}`)
+    .then((res) => res.json())
+    .then((data) => {
+      if (!data.route?.coordinates || !Array.isArray(data.route.coordinates)) {
+        console.error('Invalid or missing coordinates:', data);
+        return;
+      }
 
-        const parsedCoords = data.route.coordinates.map(([lng, lat]) => ({
-          latitude: lat,
-          longitude: lng,
-        }));
+      const parsedCoords = data.route.coordinates.map(([lng, lat]) => ({
+        latitude: lat,
+        longitude: lng,
+      }));
 
-        setRouteData({ ...data, coordinates: parsedCoords });
-      });
+      setRouteData({ ...data, coordinates: parsedCoords });
+    })
+    .catch((err) => {
+      console.error('Fetch error:', err);
+    });
+}, [routeId]);
 
-  }, [routeId]);
 
   // Show loading spinner while data is being fetched
   if (!routeData) return <ActivityIndicator size="large" style={{ flex: 1 }} />;

@@ -1,3 +1,4 @@
+require('dotenv').config({ path: './backend.env' }); // Load environment variables from .env file
 const express = require('express');     // Web framework to create API routes
 const mongoose = require('mongoose');   // MongoDB connector and schema manager
 const cors = require('cors');           // Middleware to allow cross-origin requests
@@ -12,12 +13,13 @@ app.use(cors());
 app.use(express.json());
 
 // Connect to MongoDB database named 'sakayapp'
-mongoose.connect('mongodb://192.168.1.11:27017/SakayApp');
+mongoose.connect(process.env.MONGODB_URI);
 
 // Define the schema for route documents
 const RouteSchema = new mongoose.Schema({
   name: String,
   direction: String,
+  mode: String,
   route: {
     type: {
       type: String,
@@ -38,7 +40,7 @@ const Route = mongoose.model('Route', RouteSchema, 'districtTwo');
 // Define a GET endpoint to return all routes
 app.get('/routes', async (req, res) => {
   const routes = await Route.find();   // Fetch all documents from the collection
-  console.log('Fetched routes:', routes); // 👈 Check terminal output
+  console.log('Fetched routes:', routes); // Check terminal output
   res.json(routes);                    // Send them back as JSON
 });
 
@@ -52,4 +54,4 @@ app.get('/routes/:id', async (req, res) => {
 });
 
 // Start the server on port 3000
-app.listen(3000, () => console.log('Server running on port 3000'));
+app.listen(process.env.PORT, () => console.log(`Server running on port ${process.env.PORT}`));

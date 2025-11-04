@@ -5,6 +5,8 @@ import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import routeListStyles from '../styles/RouteListStyles';
+import { API_URL } from '@env';
+
 
 // Define the shape of each route item
 type RouteItem = {
@@ -39,7 +41,9 @@ export default function RouteListScreen() {
 
   // Fetch route data from backend when screen loads or mode changes
   useEffect(() => {
-    fetch('http://192.168.1.8:3000/routes') // Replace with your actual IP
+    console.log('Fetching from:', `${API_URL}/routes`);
+
+    fetch(`${API_URL}/routes`) // Replace with your actual IP
       .then((res) => res.json())
       .then((data) => {
         // Filter routes based on mode (e.g. jeepney or tricycle)
