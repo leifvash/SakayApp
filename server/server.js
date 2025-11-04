@@ -1,21 +1,28 @@
-require('dotenv').config({ path: './backend.env' }); // Load environment variables from .env file
-const express = require('express');     // Web framework to create API routes
-const mongoose = require('mongoose');   // MongoDB connector and schema manager
-const cors = require('cors');           // Middleware to allow cross-origin requests
+require('dotenv').config({ path: './backend.env' });
+const express = require('express');
+const mongoose = require('mongoose');
+const cors = require('cors');
 
-// Initialize Express app
 const app = express();
-
-// Enable CORS so React Native app can access API
 app.use(cors());
-
-// Enable JSON parsing for incoming requests
 app.use(express.json());
 
-// Connect to MongoDB database named 'sakayapp'
-mongoose.connect(process.env.MONGODB_URI);
+// Connect to local DB (DistrictOne)
+const dbOne = mongoose.createConnection(process.env.MONGODB_URI_ONE);
+dbOne.on('connected', () => console.log('✅ Connected to DistrictOne DB'));
+dbOne.on('error', (err) => console.error('❌ DistrictOne DB error:', err.message));
 
-// Define the schema for route documents
+// Connect to remote DB (DistrictTwo) only if URI is defined
+let dbTwo = null;
+let DistrictTwoRoutes = null;
+
+if (process.env.MONGODB_URI_TWO) {
+  dbTwo = mongoose.createConnection(process.env.MONGODB_URI_TWO);
+  dbTwo.on('connected', () => console.log('✅ Connected to DistrictTwo DB'));
+  dbTwo.on('error', (err) => console.error('❌ DistrictTwo DB error:', err.message));
+}
+
+// Define route schema
 const RouteSchema = new mongoose.Schema({
   name: String,
   direction: String,
@@ -33,25 +40,84 @@ const RouteSchema = new mongoose.Schema({
   }
 });
 
+// Bind models to connections
+const DistrictOneRoutes = dbOne.model('Route', RouteSchema, 'districtOne');
+if (dbTwo) {
+  DistrictTwoRoutes = dbTwo.model('Route', RouteSchema, 'districtTwo');
+}
 
-// Create a model named 'Route' that maps to the 'District 1 Routes' collection
-// This third argument is required because collection name has spaces and capitalization
-const Route = mongoose.model('Route', RouteSchema, 'districtTwo');
-// Define a GET endpoint to return all routes
+// Monitor DB status
+app.get('/health', (req, res) => {
+  const timestamp = new Date().toISOString();
+
+  const status = {
+    districtOne: dbOne.readyState === 1 ? 'connected' : 'disconnected',
+    districtTwo: dbTwo?.readyState === 1 ? 'connected' : 'disconnected',
+    timestamp
+  };
+
+  // Output log to terminal
+  console.log(`[HEALTH CHECK] ${timestamp}`);
+  console.log(`→ DistrictOne: ${status.districtOne}`);
+  console.log(`→ DistrictTwo: ${status.districtTwo}`);
+
+  res.json(status);
+});
+
+// GET all routes (merged)
 app.get('/routes', async (req, res) => {
-  const routes = await Route.find();   // Fetch all documents from the collection
-  console.log('Fetched routes:', routes); // Check terminal output
-  res.json(routes);                    // Send them back as JSON
-});
+  let routesOne = [];
+  let routesTwo = [];
 
-// Define a GET endpoint to return a specific route by ID
-app.get('/routes/:id', async (req, res) => {
-  const route = await Route.findById(req.params.id);  // Fetch route by MongoDB _id
-  if (!route) {
-    return res.status(404).json({ error: 'Route not found' });
+  try {
+    routesOne = await DistrictOneRoutes.find();
+    console.log(`DistrictOne routes: ${routesOne.length}`);
+  } catch (err) {
+    console.error('❌ DistrictOne fetch failed:', err.message);
   }
-  res.json(route);                                    // Send it back as JSON
+
+  if (DistrictTwoRoutes) {
+    try {
+      routesTwo = await DistrictTwoRoutes.find();
+      console.log(`DistrictTwo routes: ${routesTwo.length}`);
+    } catch (err) {
+      console.error('❌ DistrictTwo fetch failed:', err.message);
+    }
+  }
+
+  const allRoutes = [...routesOne, ...routesTwo];
+  if (allRoutes.length === 0) {
+    return res.status(500).json({ error: 'No routes available from either database' });
+  }
+
+  res.json(allRoutes);
 });
 
-// Start the server on port 3000
-app.listen(process.env.PORT, () => console.log(`Server running on port ${process.env.PORT}`));
+// GET route by ID (search both DBs)
+app.get('/routes/:id', async (req, res) => {
+  const { id } = req.params;
+  let route = null;
+
+  try {
+    route = await DistrictOneRoutes.findById(id);
+  } catch (err) {
+    console.error('❌ DistrictOne ID lookup failed:', err.message);
+  }
+
+  if (!route && DistrictTwoRoutes) {
+    try {
+      route = await DistrictTwoRoutes.findById(id);
+    } catch (err) {
+      console.error('❌ DistrictTwo ID lookup failed:', err.message);
+    }
+  }
+
+  if (!route) {
+    return res.status(404).json({ error: 'Route not found in either database' });
+  }
+  res.json(route);
+});
+
+// Start server
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
