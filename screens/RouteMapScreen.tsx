@@ -6,7 +6,6 @@ import { Ionicons } from '@expo/vector-icons';
 import RouteMapScreenStyles from '../styles/RouteMapScreenStyles';
 import RouteDetailsOverlay from '../components/RouteDetailsOverlay';
 import { ActivityIndicator } from 'react-native';
-import { API_URL } from '@env';
 
 // Type for individual coordinates
 type Coordinate = {
@@ -17,7 +16,6 @@ type Coordinate = {
 // Type for full route data fetched from backend
 type RouteData = {
   name: string;
-  mode: string;
   fare?: number;
   stops?: string[];
   route: {
@@ -33,7 +31,6 @@ type RouteMapParams = { routeId: string };
 
 // Full stack param list for navigation typing
 type RootStackParamList = {
-  RouteList: { mode: 'jeepney' | 'tricycle' };
   RouteMap: { routeId: string };
 };
 
@@ -47,10 +44,28 @@ export default function RouteMapScreen() {
   const [routeData, setRouteData] = useState<RouteData | null>(null);
 
   // Fetch route details from backend when routeId changes
-  useEffect(() => {
-  fetch(`${API_URL}/routes/${routeId}`)
-    .then((res) => res.json())
-    .then((data) => {
+useEffect(() => {
+  const fetchRouteData = async () => {
+    try {
+      // Step 1: Get dynamic API URL
+      const configRes = await fetch('http://192.168.1.6:3000/config');
+      const config = await configRes.json();
+      const dynamicUrl = config.apiUrl;
+
+      // Step 2: Fetch route details
+      const res = await fetch(`${dynamicUrl}/routes/${routeId}`);
+      const text = await res.text();
+
+      // Step 3: Parse JSON safely
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch (err) {
+        console.error('❌ Invalid JSON response:', text);
+        return;
+      }
+
+      // Step 4: Validate and parse coordinates
       if (!data.route?.coordinates || !Array.isArray(data.route.coordinates)) {
         console.error('Invalid or missing coordinates:', data);
         return;
@@ -62,12 +77,13 @@ export default function RouteMapScreen() {
       }));
 
       setRouteData({ ...data, coordinates: parsedCoords });
-    })
-    .catch((err) => {
-      console.error('Fetch error:', err);
-    });
-}, [routeId]);
+    } catch (err) {
+      console.error('❌ Fetch error:', err.message);
+    }
+  };
 
+  fetchRouteData();
+}, [routeId]);
 
   // Show loading spinner while data is being fetched
   if (!routeData) return <ActivityIndicator size="large" style={{ flex: 1 }} />;
@@ -107,7 +123,6 @@ export default function RouteMapScreen() {
       {/* Overlay component to show route details like name, fare, stops */}
       <RouteDetailsOverlay
         name={routeData.name}
-        mode={routeData.mode}
         fare={routeData.fare}
         stops={routeData.stops}
       />

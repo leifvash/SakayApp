@@ -3,16 +3,14 @@ import { View, Text, StyleSheet } from 'react-native';
 
 type Props = {
   name: string;
-  mode: string;
   fare: number;
   stops: string[];
 };
 
-const RouteDetailsOverlay = ({ name, mode, fare, stops }: Props) => {
+const RouteDetailsOverlay = ({ name, fare, stops }: Props) => {
   return (
     <View style={styles.overlay}>
       <Text style={styles.title}>{name}</Text>
-      <Text style={styles.subtitle}>Mode: {mode}</Text>
       <Text style={styles.subtitle}>Fare: ₱{fare}</Text>
       <Text style={styles.sectionTitle}>Stops:</Text>
       {Array.isArray(stops) && stops.length > 0 ? (
