@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import routeListStyles from '../styles/RouteListStyles';
+import { API_URL } from '@env';
 
 // Define the shape of each route item
 type RouteItem = {
@@ -26,15 +27,7 @@ export default function RouteListScreen() {
   useEffect(() => {
     const fetchRoutes = async () => {
       try {
-        // Step 1: Get dynamic API URL from backend
-        const configRes = await fetch('http://192.168.1.6:3000/config');
-        const config = await configRes.json();
-        const dynamicUrl = config.apiUrl;
-
-        console.log('Resolved API_URL:', dynamicUrl);
-
-        // Step 2: Fetch all routes
-        const res = await fetch(`${dynamicUrl}/routes`);
+        const res = await fetch(`${API_URL}/routes`);
         const data = await res.json();
 
         if (!Array.isArray(data)) {
@@ -42,7 +35,6 @@ export default function RouteListScreen() {
           return;
         }
 
-        // Step 3: Map route data
         const mapped = data.map((r: any) => ({
           id: r._id,
           name: r.name,
@@ -50,8 +42,8 @@ export default function RouteListScreen() {
         }));
 
         setRoutes(mapped);
-      } catch (err) {
-        console.error('❌ Failed to fetch routes:', err.message);
+      } catch (err: any) {
+        console.error('❌ Failed to fetch routes:', err.message || err);
       } finally {
         setLoading(false);
       }

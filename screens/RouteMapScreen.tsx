@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { TouchableOpacity, View, Text, StyleSheet } from 'react-native';
-import MapView, { Marker, Polyline } from 'react-native-maps';
+import { TouchableOpacity, View, Text, StyleSheet, ActivityIndicator } from 'react-native';
+import MapView, { Polyline } from 'react-native-maps';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import RouteMapScreenStyles from '../styles/RouteMapScreenStyles';
 import RouteDetailsOverlay from '../components/RouteDetailsOverlay';
-import { ActivityIndicator } from 'react-native';
+import { API_URL } from '@env';
 
 // Type for individual coordinates
 type Coordinate = {
@@ -25,74 +25,53 @@ type RouteData = {
   coordinates: Coordinate[]; // parsed lat/lng for MapView
 };
 
-
 // Navigation parameter type for RouteMap screen
 type RouteMapParams = { routeId: string };
-
-// Full stack param list for navigation typing
-type RootStackParamList = {
-  RouteMap: { routeId: string };
-};
+type RootStackParamList = { RouteMap: RouteMapParams };
 
 export default function RouteMapScreen() {
-  // Navigation and route hooks with type safety
   const navigation = useNavigation<import('@react-navigation/native').NavigationProp<RootStackParamList>>();
   const route = useRoute<RouteProp<Record<string, RouteMapParams>, string>>();
   const { routeId } = route.params;
 
-  // Local state to hold fetched route data
   const [routeData, setRouteData] = useState<RouteData | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  // Fetch route details from backend when routeId changes
-useEffect(() => {
-  const fetchRouteData = async () => {
-    try {
-      // Step 1: Get dynamic API URL
-      const configRes = await fetch('http://192.168.1.6:3000/config');
-      const config = await configRes.json();
-      const dynamicUrl = config.apiUrl;
-
-      // Step 2: Fetch route details
-      const res = await fetch(`${dynamicUrl}/routes/${routeId}`);
-      const text = await res.text();
-
-      // Step 3: Parse JSON safely
-      let data;
+  useEffect(() => {
+    const fetchRouteData = async () => {
       try {
-        data = JSON.parse(text);
-      } catch (err) {
-        console.error('❌ Invalid JSON response:', text);
-        return;
+        const res = await fetch(`${API_URL}/routes/${routeId}`);
+        const data = await res.json();
+
+        if (!data.route?.coordinates || !Array.isArray(data.route.coordinates)) {
+          console.error('❌ Invalid or missing coordinates:', data);
+          return;
+        }
+
+        const parsedCoords = data.route.coordinates.map(([lng, lat]) => ({
+          latitude: lat,
+          longitude: lng,
+        }));
+
+        setRouteData({ ...data, coordinates: parsedCoords });
+      } catch (err: any) {
+        console.error('❌ Fetch error:', err.message || err);
+      } finally {
+        setLoading(false);
       }
+    };
 
-      // Step 4: Validate and parse coordinates
-      if (!data.route?.coordinates || !Array.isArray(data.route.coordinates)) {
-        console.error('Invalid or missing coordinates:', data);
-        return;
-      }
+    fetchRouteData();
+  }, [routeId]);
 
-      const parsedCoords = data.route.coordinates.map(([lng, lat]) => ({
-        latitude: lat,
-        longitude: lng,
-      }));
-
-      setRouteData({ ...data, coordinates: parsedCoords });
-    } catch (err) {
-      console.error('❌ Fetch error:', err.message);
-    }
-  };
-
-  fetchRouteData();
-}, [routeId]);
-
-  // Show loading spinner while data is being fetched
-  if (!routeData) return <ActivityIndicator size="large" style={{ flex: 1 }} />;
+  if (loading || !routeData) {
+    return <ActivityIndicator size="large" style={{ flex: 1 }} />;
+  }
 
   const coordinates = routeData.coordinates;
 
   return (
     <View style={RouteMapScreenStyles.container}>
-      {/* MapView to display route path and stops */}
       <MapView
         style={StyleSheet.absoluteFillObject}
         initialRegion={{
@@ -102,25 +81,13 @@ useEffect(() => {
           longitudeDelta: 0.01,
         }}
       >
-        {/* Render markers for each coordinate, using stop names if available */}
-        {/* {coordinates.map((coord, index) => (
-          <Marker
-            key={index}
-            coordinate={coord}
-            title={routeData.stops?.[index] ?? `Stop ${index + 1}`}
-          />
-        ))} */}
-
-        {/* Draw polyline connecting all coordinates */}
         <Polyline coordinates={coordinates} strokeColor="#FF5733" strokeWidth={4} />
       </MapView>
 
-      {/* Back button to return to previous screen */}
       <TouchableOpacity onPress={() => navigation.goBack()} style={RouteMapScreenStyles.backButton}>
         <Ionicons name="arrow-back" size={30} color="black" />
       </TouchableOpacity>
 
-      {/* Overlay component to show route details like name, fare, stops */}
       <RouteDetailsOverlay
         name={routeData.name}
         fare={routeData.fare}
