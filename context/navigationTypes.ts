@@ -4,9 +4,12 @@ export type Location = {
 };
 
 export type RootStackParamList = {
-  Main: { origin?: Location; destination?: Location };
-  LocationSearch: { type: 'origin' | 'destination' };
-  RouteList: { mode: string };
-  RouteMap: { routeId: string };
+  MainScreen: undefined;
+  AdminLoginScreen: undefined;
+  AddRoute: undefined;
+  EditRoute: { route: Location };
+  RouteList: { isAdmin: boolean };
+  MapPicker: { type: 'origin' | 'destination' };
+  RecommendedRoute: { plan: any[] }; // <-- new screen
 };
-// add other routes here as needed
+

@@ -22,7 +22,7 @@ export default StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 1)',
     padding: 20, 
     borderRadius: 20,
-    height: 300,
+    height: 350,
   },
   header: {
     fontSize: 24,

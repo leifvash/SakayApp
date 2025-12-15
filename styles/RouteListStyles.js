@@ -1,23 +1,45 @@
 import { StyleSheet } from 'react-native';
 
 export default StyleSheet.create({
-    backButtonContainer: {
-        flex: 1, 
-        padding: 20
-    },
-    backButton: {
-        flexDirection: 'row', 
-        marginBottom: 20
-    },
-    backButtonText: {
-        marginHorizontal: 10, 
-        fontSize: 30, 
-        marginBottom: 10,
-        fontWeight: 'bold',
-    },
-    routeItem: {
-        padding: 10, 
-        backgroundColor: '#eee', 
-        marginBottom: 10 
-    }
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 15,
+    borderBottomWidth: 1,
+    borderColor: '#ddd',
+  },
+  backButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  backButtonText: {
+    fontSize: 18,
+    marginLeft: 8,
+    color: '#333',
+  },
+  addButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  addButtonText: {
+    fontSize: 16,
+    marginLeft: 5,
+    color: 'blue',
+  },
+  routeItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: 15,
+    borderBottomWidth: 1,
+    borderColor: '#eee',
+  },
+  routeName: {
+    fontSize: 18,
+    fontWeight: '600',
+  },
+  routeMeta: {
+    fontSize: 14,
+    color: '#555',
+  },
 });
