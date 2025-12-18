@@ -6,6 +6,9 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../context/navigationTypes';
 import { useLocation } from '../context/LocationContext';
 import { useEffect } from 'react';
+import { API_URL } from '@env';
+
+
 
 export default function MapOverlay() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
@@ -25,7 +28,7 @@ export default function MapOverlay() {
     async function fetchRecommendedRoute() {
       if (origin && destination) {
         try {
-          const response = await fetch("http://168.254.109:3000/routes/recommend", {
+          const response = await fetch(`${API_URL}/routes/recommend`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({

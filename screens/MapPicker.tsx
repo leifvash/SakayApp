@@ -7,6 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocation } from '../context/LocationContext';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../context/navigationTypes';
+import { API_URL } from '@env';
 
 export default function MapPicker() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
@@ -35,11 +36,7 @@ export default function MapPicker() {
 
     if (finalOrigin && finalDestination) {
       try {
-        console.log("Sending recommend request:", {
-            origin: finalOrigin,
-            destination: finalDestination
-          });
-        const response = await fetch("http://168.254.109:3000/routes/recommend", {
+        const response = await fetch(`${API_URL}/routes/recommend`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -48,35 +45,19 @@ export default function MapPicker() {
             thresholdMeters: 200
           })
         });
-        console.log("Origin:", origin, "Destination:", destination);
+
         if (response.ok) {
           const data = await response.json();
-
-          //  Pass plan directly as navigation param
           if (Array.isArray(data.plan) && data.plan.length > 0) {
-            console.log("✅ Recommended route:", data.plan[0]?.route?.name ?? "Unnamed Route");
-            console.log("🔍 Full plan:", JSON.stringify(data.plan, null, 2));
             navigation.navigate('RecommendedRoute', { plan: data.plan });
-            console.log("🔍 Full response:", JSON.stringify(data, null, 2));
           } else {
-            console.log("⚠️ No plan array in response:", data);
-            navigation.goBack();
-              setOrigin(null);
-              setDestination(null);
-              navigation.goBack();
-
+            navigation.navigate('RecommendedRoute', { plan: [], error: data.error || 'No route found' });
           }
         } else {
-          console.log("⚠️ No route found");
-          navigation.goBack();
-            setOrigin(null);
-            setDestination(null);
-            navigation.goBack();
-
+          navigation.navigate('RecommendedRoute', { plan: [], error: 'No route found' });
         }
       } catch (err) {
-        console.error("❌ Error fetching route:", err);
-        navigation.goBack();
+        navigation.navigate('RecommendedRoute', { plan: [], error: 'Network error. Please try again.' });
       }
     } else {
       navigation.goBack();

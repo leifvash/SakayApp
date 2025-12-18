@@ -10,6 +10,6 @@ export type RootStackParamList = {
   EditRoute: { route: Location };
   RouteList: { isAdmin: boolean };
   MapPicker: { type: 'origin' | 'destination' };
-  RecommendedRoute: { plan: any[] }; // <-- new screen
+  RecommendedRoute: { plan: any[]; error?: string}; // <-- new screen
 };
 

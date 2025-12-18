@@ -60,17 +60,23 @@ export default function RecommendedRoute() {
         {plan.map((step, idx) => (
           <View key={idx} style={{ marginTop: 5 }}>
             <Text style={{ fontWeight: 'bold' }}>
-              {idx === 0 ? 'First Ride' : 'Transfer Ride'}: {step.route?.name ?? 'Unnamed Route'}
+              {idx === 0 ? 'First Ride' : 'Transfer Ride'}: {step.name ?? 'Unnamed Route'}
             </Text>
             {step.originDistance !== undefined && (
-                <Text>
-                Origin distance: {typeof step.originDistance === 'number' ? step.originDistance.toFixed(1) + ' m' : 'N/A'}
-                </Text>
+              <Text>
+                Origin distance:{' '}
+                {typeof step.originDistance === 'number'
+                  ? step.originDistance.toFixed(1) + ' m'
+                  : 'N/A'}
+              </Text>
             )}
             {step.destinationDistance !== undefined && (
-                <Text>
-                Destination distance: {typeof step.destinationDistance === 'number' ? step.destinationDistance.toFixed(1) + ' m' : 'N/A'}
-                </Text>
+              <Text>
+                Destination distance:{' '}
+                {typeof step.destinationDistance === 'number'
+                  ? step.destinationDistance.toFixed(1) + ' m'
+                  : 'N/A'}
+              </Text>
             )}
           </View>
         ))}
@@ -93,10 +99,12 @@ export default function RecommendedRoute() {
         {/* Draw polylines for each route in the plan */}
         {plan.map((step, idx) => {
           const coords =
-            step.route?.route?.coordinates?.map(([lng, lat]) => ({
-              latitude: lat,
-              longitude: lng,
-            })) || [];
+            Array.isArray(step.route?.coordinates)
+              ? step.route.coordinates.map(([lng, lat]: [number, number]) => ({
+                  latitude: lat,
+                  longitude: lng,
+                }))
+              : [];
           return (
             <Polyline
               key={idx}
