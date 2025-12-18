@@ -23,15 +23,28 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true, 
+      "edgeToEdgeEnabled": true,
       "config": {
-        "googleMaps": {
-          "apiKey": "YOUR_ANDROID_API_KEY"
+        "maps": {
+          "provider": "osm"
         }
-      }
+      },
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION"
+      ],
+      "package": "com.leifvash.SakayApp"
     },
     "web": {
       "favicon": "./assets/images/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "2d299f15-8aad-4046-990b-c2dfc9474ecf"
+      }
+    },
+    "plugins": [
+      "expo-maps"
+    ]
   }
 }

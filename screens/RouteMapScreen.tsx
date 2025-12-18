@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { TouchableOpacity, View, Text, StyleSheet, ActivityIndicator } from 'react-native';
-import MapView, { Polyline } from 'react-native-maps';
+import { TouchableOpacity, View, StyleSheet, ActivityIndicator } from 'react-native';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import RouteMapScreenStyles from '../styles/RouteMapScreenStyles';
 import RouteDetailsOverlay from '../components/RouteDetailsOverlay';
 import { API_URL } from '@env';
+import CustomMap from '../components/CustomMap';
 
 // Type for individual coordinates
 type Coordinate = {
@@ -72,7 +72,8 @@ export default function RouteMapScreen() {
 
   return (
     <View style={RouteMapScreenStyles.container}>
-      <MapView
+      {/* ✅ Use CustomMap instead of raw MapView */}
+      <CustomMap
         style={StyleSheet.absoluteFillObject}
         initialRegion={{
           latitude: coordinates[0]?.latitude || 8.4800,
@@ -80,14 +81,21 @@ export default function RouteMapScreen() {
           latitudeDelta: 0.1,
           longitudeDelta: 0.01,
         }}
-      >
-        <Polyline coordinates={coordinates} strokeColor="#FF5733" strokeWidth={4} />
-      </MapView>
+        polylines={[
+          {
+            id: 'route-polyline',
+            coordinates,
+            color: '#FF5733',
+          },
+        ]}
+      />
 
+      {/* Back button */}
       <TouchableOpacity onPress={() => navigation.goBack()} style={RouteMapScreenStyles.backButton}>
         <Ionicons name="arrow-back" size={30} color="black" />
       </TouchableOpacity>
 
+      {/* Overlay with route details */}
       <RouteDetailsOverlay
         name={routeData.name}
         fare={routeData.fare}
