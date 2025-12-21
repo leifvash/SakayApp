@@ -7,7 +7,7 @@ const markers = [
             "latitudeDelta": 0.1,
             "longitudeDelta": 0.1,
         },
-        "description": "This is marker 1"
+        "description": "Main Screen Marker"
     }
 ]
 export default markers;

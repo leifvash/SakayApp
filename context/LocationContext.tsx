@@ -1,20 +1,20 @@
 import React, { createContext, useState, useContext } from 'react';
 
-type Coordinates = {
+export type Coordinates = {
   latitude: number;
   longitude: number;
 };
 
 type RouteStep = {
+  _id: string;
+  direction: string;
+  district: string;
+  name: string;
   route: {
-    name: string;
-    route: {
-      coordinates: [number, number][];
-    };
+    coordinates: [number, number][];
   };
-  originDistance?: number;
-  destinationDistance?: number;
 };
+
 
 type LocationContextType = {
   origin: Coordinates | null;

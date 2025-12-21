@@ -6,7 +6,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocation } from '../context/LocationContext';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../context/navigationTypes';
-import { API_URL } from '@env';
 import CustomMap from '../components/CustomMap';
 
 export default function MapPicker() {
@@ -14,7 +13,7 @@ export default function MapPicker() {
   const route = useRoute();
   const { type } = route.params as { type: 'origin' | 'destination' };
 
-  const { origin, destination, setOrigin, setDestination } = useLocation();
+  const { setOrigin, setDestination } = useLocation();
   const [selectedCoord, setSelectedCoord] = useState<{ latitude: number; longitude: number } | null>(null);
 
   const handleMapPress = (event: any) => {
@@ -22,8 +21,19 @@ export default function MapPicker() {
     setSelectedCoord({ latitude, longitude });
   };
 
-  const handleSave = async () => {
-    // ... keep your existing save logic
+  const handleSave = () => {
+    if (!selectedCoord) {
+      console.log("⚠️ No coordinate selected");
+      return;
+    }
+
+    if (type === "origin") {
+      setOrigin(selectedCoord);
+    } else {
+      setDestination(selectedCoord);
+    }
+
+    navigation.goBack();
   };
 
   return (
@@ -39,7 +49,7 @@ export default function MapPicker() {
         </Text>
       </TouchableOpacity>
 
-      {/* ✅ Use CustomMap */}
+      {/* Map with tap handler */}
       <CustomMap
         style={{ flex: 1 }}
         initialRegion={{
@@ -53,6 +63,7 @@ export default function MapPicker() {
             ? [{ id: 'selected', coordinates: selectedCoord, name: 'Selected Point' }]
             : []
         }
+        onPress={handleMapPress}   // ✅ capture taps
       />
 
       {/* Save Button */}

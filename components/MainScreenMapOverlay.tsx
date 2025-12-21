@@ -40,10 +40,13 @@ export default function MapOverlay() {
 
           if (response.ok) {
             const data = await response.json();
-            setRecommendedPlan(data.route);
+            console.log("✅ Recommended route fetched:", data);
+            setRecommendedPlan(data.plan);
+            navigation.navigate('RecommendedRoute', { plan: data.plan });
           } else {
             setRecommendedPlan(null);
             console.log("⚠️ No route found");
+            navigation.navigate('RecommendedRoute', { plan: [] });
           }
         } catch (err) {
           console.error("❌ Error fetching route:", err);

@@ -6,7 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import RouteListStyles from '../styles/RouteListStyles';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '../context/navigationTypes';
-import CustomMap from '../components/CustomMap';
+import CustomMap, { Coordinate } from '../components/CustomMap';
 
 export default function RecommendedRoute() {
   const { origin, destination, setOrigin, setDestination } = useLocation();
@@ -28,7 +28,10 @@ export default function RecommendedRoute() {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
         <Text>No recommended route found</Text>
-        <TouchableOpacity onPress={handleBack} style={{ marginTop: 20, flexDirection: 'row', alignItems: 'center' }}>
+        <TouchableOpacity
+          onPress={handleBack}
+          style={{ marginTop: 20, flexDirection: 'row', alignItems: 'center' }}
+        >
           <Ionicons name="arrow-back" size={24} color="blue" />
           <Text style={{ marginLeft: 8, color: 'black' }}>Go Back</Text>
         </TouchableOpacity>
@@ -36,19 +39,36 @@ export default function RecommendedRoute() {
     );
   }
 
-  // ✅ Build markers + polylines for CustomMap
-  const markers = [
-    origin && { id: 'origin', coordinates: origin, name: 'Origin', color: 'blue' },
-    destination && { id: 'destination', coordinates: destination, name: 'Destination', color: 'orange' },
-  ].filter(Boolean) as any[];
+  // ✅ Build markers with proper typing
+  const markers: { id: string; coordinates: Coordinate; name: string }[] = [];
+  if (origin) markers.push({ id: 'origin', coordinates: origin, name: 'Origin' });
+  if (destination) markers.push({ id: 'destination', coordinates: destination, name: 'Destination' });
 
-  const polylines = plan.map((step, idx) => ({
-    id: `route-${idx}`,
-    coordinates: Array.isArray(step.route?.coordinates)
-      ? step.route.coordinates.map(([lng, lat]: [number, number]) => ({ latitude: lat, longitude: lng }))
-      : [],
-    color: idx === 0 ? 'blue' : 'orange',
-  }));
+  // ✅ Build polylines, handling both shapes
+  const polylines = plan.map((step, idx) => {
+    let coords: Coordinate[] = [];
+
+    if (Array.isArray(step.route?.coordinates)) {
+      coords = step.route.coordinates.map(([lng, lat]: [number, number]) => ({
+        latitude: lat,
+        longitude: lng,
+      }));
+    } else if (Array.isArray(step.route?.route?.coordinates)) {
+      coords = step.route.route.coordinates.map(([lng, lat]: [number, number]) => ({
+        latitude: lat,
+        longitude: lng,
+      }));
+    }
+
+    return {
+      id: `route-${idx}`,
+      coordinates: coords,
+      color: idx === 0 ? 'blue' : 'orange',
+    };
+  });
+
+  // ✅ Center map on first coordinate if available
+  const firstCoord = polylines[0]?.coordinates[0];
 
   return (
     <View style={{ flex: 1 }}>
@@ -72,8 +92,8 @@ export default function RecommendedRoute() {
       <CustomMap
         style={{ flex: 1 }}
         initialRegion={{
-          latitude: origin?.latitude || 8.4542,
-          longitude: origin?.longitude || 124.6319,
+          latitude: firstCoord?.latitude || origin?.latitude || 8.4542,
+          longitude: firstCoord?.longitude || origin?.longitude || 124.6319,
           latitudeDelta: 0.05,
           longitudeDelta: 0.05,
         }}

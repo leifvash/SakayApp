@@ -43,19 +43,16 @@ export default function RouteMapScreen() {
         const res = await fetch(`${API_URL}/routes/${routeId}`);
         const data = await res.json();
 
-        if (!data.route?.coordinates || !Array.isArray(data.route.coordinates)) {
-          console.error('❌ Invalid or missing coordinates:', data);
-          return;
-        }
+        const coordsArray = Array.isArray(data.route?.coordinates) ? data.route.coordinates : [];
 
-        const parsedCoords = data.route.coordinates.map(([lng, lat]) => ({
+        const parsedCoords = coordsArray.map(([lng, lat]: [number, number]) => ({
           latitude: lat,
           longitude: lng,
         }));
 
         setRouteData({ ...data, coordinates: parsedCoords });
       } catch (err: any) {
-        console.error('❌ Fetch error:', err.message || err);
+        console.error("❌ Fetch error:", err.message || err);
       } finally {
         setLoading(false);
       }
