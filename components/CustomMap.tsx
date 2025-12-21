@@ -1,5 +1,5 @@
 import React from 'react';
-import MapView, { Marker, UrlTile, Polyline, MapPressEvent, PROVIDER_DEFAULT } from 'react-native-maps';
+import MapView, { Marker, Polyline, MapPressEvent, PROVIDER_DEFAULT } from 'react-native-maps';
 import { ViewStyle } from 'react-native';
 
 // Coordinate type
@@ -47,16 +47,9 @@ export default function CustomMap({
     <MapView
       style={style}
       initialRegion={initialRegion}
-      provider={PROVIDER_DEFAULT}
+      provider="google"
       onPress={onPress}
     >
-      {/* ✅ Use a proper tile provider (MapTiler, Geoapify, etc.) */}
-      <UrlTile
-        key="maptiler-tiles"
-        urlTemplate="https://api.maptiler.com/maps/streets-v4/{z}/{x}/{y}@2x.png?key=AxTYFa385wq5rF5Ybzbk"
-        maximumZ={19}
-        tileSize={512}   // sharper tiles on modern devices
-      />
 
       {/* ✅ Render markers safely */}
       {markers.map((m) => (

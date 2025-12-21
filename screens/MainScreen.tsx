@@ -23,7 +23,7 @@ export default function MainScreen() {
     <View style={mainscreen.container}>
       <MapView
         style={mainscreen.map}
-        provider={PROVIDER_DEFAULT}
+        provider="google"
         initialRegion={{
           latitude: initialLat,
           longitude: initialLon,
@@ -31,12 +31,6 @@ export default function MainScreen() {
           longitudeDelta: 0.05,
         }}
       >
-        {/* Pure Maptiler tiles */}
-        <UrlTile
-          key="maptiler-tiles"
-          urlTemplate="https://api.maptiler.com/maps/streets-v4/{z}/{x}/{y}@2x.png?key=AxTYFa385wq5rF5Ybzbk"
-          maximumZ={20}
-        />
       </MapView>
 
       <MapOverlay/>

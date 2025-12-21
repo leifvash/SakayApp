@@ -22,8 +22,8 @@
       },
       "edgeToEdgeEnabled": true,
       "config": {
-        "maps": {
-          "provider": "osm"
+        "googleMaps": {
+          "apiKey": "AIzaSyCnLEzmHz7XEVMaSu4vF_wMZtIE1JWrimk"
         }
       },
       "permissions": [
